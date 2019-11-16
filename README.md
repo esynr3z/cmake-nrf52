@@ -4,6 +4,8 @@ Minimalistic CMake script for easy NRF52 projects creation.
 
 Current workflow was inspired by [Polidea/cmake-nRF5x](https://github.com/Polidea/cmake-nRF5x).
 
+Tested with nRF5 SDK 15.3.0.
+
 # Dependencies
 
 - [Nordic Semiconductor nRF5 SDK](https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK) - headers, drivers, libraries, examples

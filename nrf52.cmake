@@ -44,6 +44,7 @@ macro(nrf52_setup NRF52_CHIP)
 
     # add nrf52 generic includes
     include_directories(${NRF5_SDK_PATH}/modules/nrfx/mdk)
+    include_directories(${NRF5_SDK_PATH}/components)
     include_directories(${NRF5_SDK_PATH}/components/toolchain/cmsis/include)
 
     # prepare linker script
@@ -86,4 +87,67 @@ macro(nrf52_add_exec SOURCE_FILES)
                 COMMAND sleep 0.5s
                 COMMAND ${NRFJPROG} --reset -f nrf52
                 COMMENT "Programming ${PROJECT_NAME}.hex")
+endmacro()
+
+#-- SDK: Utils -----------------------------------------------------------------
+macro(nrf52_add_utils)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/util)
+
+    file(GLOB SDK_UTIL_SRC ${NRF5_SDK_PATH}/components/libraries/util/*.c)
+    list(FILTER SDK_UTIL_SRC EXCLUDE REGEX "(.*_iar.c$|.*_keil.c$)")
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_UTIL_SRC})
+endmacro()
+
+#-- SDK: Boards ----------------------------------------------------------------
+macro(nrf52_add_boards)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/boards)
+
+    file(GLOB SDK_BOARDS_SRC ${NRF5_SDK_PATH}/components/boards/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_BOARDS_SRC})
+endmacro()
+
+#-- SDK: Peripheral drivers ----------------------------------------------------
+macro(nrf52_add_drivers)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/drivers_nrf/nrf_soc_nosd
+        ${NRF5_SDK_PATH}/integration/nrfx
+        ${NRF5_SDK_PATH}/integration/nrfx/legacy
+        ${NRF5_SDK_PATH}/modules/nrfx
+        ${NRF5_SDK_PATH}/modules/nrfx/drivers
+        ${NRF5_SDK_PATH}/modules/nrfx/drivers/include
+        ${NRF5_SDK_PATH}/modules/nrfx/soc
+        ${NRF5_SDK_PATH}/modules/nrfx/hal)
+
+    file(GLOB SDK_NRFX_DRIVERS_SRC ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/*.c)
+    file(GLOB SDK_NRFX_SOC_SRC ${NRF5_SDK_PATH}/modules/nrfx/soc/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_NRFX_DRIVERS_SRC}
+        ${SDK_NRFX_SOC_SRC})
+endmacro()
+
+#-- SDK: Library Delay ---------------------------------------------------------
+macro(nrf52_add_lib_delay)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/delay)
+endmacro()
+
+#-- SDK: Library Log -----------------------------------------------------------
+macro(nrf52_add_lib_log)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/experimental_section_vars
+        ${NRF5_SDK_PATH}/components/libraries/strerror
+        ${NRF5_SDK_PATH}/components/libraries/log
+        ${NRF5_SDK_PATH}/components/libraries/log/src)
+
+    file(GLOB SDK_LIB_LOG_SRC ${NRF5_SDK_PATH}/components/libraries/log/src/*.c)
+    file(GLOB SDK_LIB_EXPSVARS_SRC ${NRF5_SDK_PATH}/components/libraries/experimental_section_vars/*.c)
+    file(GLOB SDK_LIB_STRERROR_SRC ${NRF5_SDK_PATH}/components/libraries/strerror/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_EXPSVARS_SRC}
+        ${SDK_LIB_STRERROR_SRC}
+        ${SDK_LIB_LOG_SRC})
 endmacro()
