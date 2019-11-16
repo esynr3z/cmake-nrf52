@@ -2,14 +2,14 @@
 
 Minimalistic CMake script for easy NRF52 projects creation.
 
-Current workflow was inspired by (Polidea/cmake-nRF5x)[https://github.com/Polidea/cmake-nRF5x].
+Current workflow was inspired by [Polidea/cmake-nRF5x](https://github.com/Polidea/cmake-nRF5x).
 
 # Dependencies
 
-- (Nordic Semiconductor nRF5 SDK)[https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK] - headers, drivers, libraries, examples
-- (GNU Arm Embedded Toolchain)[https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads] - compiler targeting Arm Cortex-M chips
-- (Segger JLink)[https://www.segger.com/downloads/jlink] - interface software for the JLink family of programmers
-- (Nordic Semiconductor nRF Command Line Tools)[https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools] - nrfjprog used for programming NRF52
+- [Nordic Semiconductor nRF5 SDK](https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK) - headers, drivers, libraries, examples
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) - compiler targeting Arm Cortex-M chips
+- [Segger JLink](https://www.segger.com/downloads/jlink) - interface software for the JLink family of programmers
+- [Nordic Semiconductor nRF Command Line Tools](https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools) - nrfjprog used for programming NRF52
 
 _Note_: last two are optional. OpenOCD can be used as alternative.
 
