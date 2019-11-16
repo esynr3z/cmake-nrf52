@@ -54,7 +54,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
-_Note_: possible configurations are Debug, Release, RelWithDebIndo and MinSizeRel.
+_Note_: possible configurations are Debug, Release, RelWithDebInfo and MinSizeRel.
 
 # Flash
 
