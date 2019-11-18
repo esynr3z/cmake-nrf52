@@ -140,7 +140,7 @@ macro(nrf52_add_nrfx_legacy)
         ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_uart.c
         ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_clock.c)
     list(APPEND SDK_SOURCE_FILES
-        ${SDK_NRFX_DRIVERS_SRC})
+        ${SDK_NRFX_LEGACY_SRC})
 endmacro()
 
 #-- SDK: Library Delay ---------------------------------------------------------
