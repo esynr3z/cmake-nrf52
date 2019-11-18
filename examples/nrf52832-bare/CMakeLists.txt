@@ -8,14 +8,14 @@ set(NRF5_SDK_PATH /opt/nrf5/nRF5_SDK_15.3.0_59ac345)
 # By default global PATH used, uncomment to set your path
 #set(NRFJPROG /opt/nrf5/nrfjprog/nrfjprog)
 
-# By default gcc_nrf52.ld in project root used, uncomment to set your script
-#set(NRF52_LINKER_SCRIPT /path/to/custom_nrf52.ld)
-
 # By default global PATH used, uncomment to set your path
 #set(GCC_TOOLCHAIN_BIN_PATH /opt/gcc-arm-none-eabi-7-2017-q4-major/bin)
 
 # Will be "./cmake-nrf52/nrf52.cmake" in typical project
 include("../../nrf52.cmake")
+
+# By default gcc_nrf52.ld in project root used, uncomment to set your script
+#set(NRF52_LINKER_SCRIPT /path/to/custom_nrf52.ld)
 
 #-- NRF52 setup ----------------------------------------------------------------
 # Change parameters if needed
