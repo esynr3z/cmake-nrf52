@@ -50,14 +50,14 @@ macro(nrf52_setup NRF52_CHIP)
     # prepare linker script
     if(NOT NRF52_LINKER_SCRIPT)
         message(STATUS "NRF52_LINKER_SCRIPT variable is not set. Will use ./gcc_nrf52.ld")
-        set(NRF52_LDSCRIPT ${CMAKE_SOURCE_DIR}/gcc_nrf52.ld)
+        set(NRF52_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/gcc_nrf52.ld)
     else()
         message(STATUS "NRF52_LINKER_SCRIPT used: ${NRF52_LINKER_SCRIPT}")
     endif()
 
     # add nrf52 linker script
     link_directories(${NRF5_SDK_PATH}/modules/nrfx/mdk)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${NRF52_LDSCRIPT} -Wl,-Map=${CMAKE_BINARY_DIR}/${PROJECT_NAME}.map -Wl,--print-memory-usage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${NRF52_LINKER_SCRIPT} -Wl,-Map=${CMAKE_BINARY_DIR}/${PROJECT_NAME}.map -Wl,--print-memory-usage")
 endmacro()
 
 #-- NRF52 executable -----------------------------------------------------------
@@ -110,23 +110,37 @@ macro(nrf52_add_boards)
         ${SDK_BOARDS_SRC})
 endmacro()
 
-#-- SDK: Peripheral drivers ----------------------------------------------------
-macro(nrf52_add_drivers)
+#-- SDK: Peripheral drivers NRFX -----------------------------------------------
+macro(nrf52_add_nrfx)
     include_directories(
         ${NRF5_SDK_PATH}/components/drivers_nrf/nrf_soc_nosd
         ${NRF5_SDK_PATH}/integration/nrfx
-        ${NRF5_SDK_PATH}/integration/nrfx/legacy
         ${NRF5_SDK_PATH}/modules/nrfx
         ${NRF5_SDK_PATH}/modules/nrfx/drivers
+        ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/prs
         ${NRF5_SDK_PATH}/modules/nrfx/drivers/include
         ${NRF5_SDK_PATH}/modules/nrfx/soc
         ${NRF5_SDK_PATH}/modules/nrfx/hal)
 
     file(GLOB SDK_NRFX_DRIVERS_SRC ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/*.c)
+    list(APPEND SDK_NRFX_DRIVERS_SRC
+        ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/prs/nrfx_prs.c)
     file(GLOB SDK_NRFX_SOC_SRC ${NRF5_SDK_PATH}/modules/nrfx/soc/*.c)
     list(APPEND SDK_SOURCE_FILES
         ${SDK_NRFX_DRIVERS_SRC}
         ${SDK_NRFX_SOC_SRC})
+endmacro()
+
+#-- SDK: Peripheral drivers NRFX (legacy) --------------------------------------
+macro(nrf52_add_nrfx_legacy)
+    include_directories(
+        ${NRF5_SDK_PATH}/integration/nrfx/legacy)
+
+    list(APPEND SDK_NRFX_LEGACY_SRC
+        ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_uart.c
+        ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_clock.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_NRFX_DRIVERS_SRC})
 endmacro()
 
 #-- SDK: Library Delay ---------------------------------------------------------
@@ -137,17 +151,172 @@ endmacro()
 
 #-- SDK: Library Log -----------------------------------------------------------
 macro(nrf52_add_lib_log)
-    include_directories(
-        ${NRF5_SDK_PATH}/components/libraries/experimental_section_vars
-        ${NRF5_SDK_PATH}/components/libraries/strerror
+    include_directories(rs
         ${NRF5_SDK_PATH}/components/libraries/log
         ${NRF5_SDK_PATH}/components/libraries/log/src)
 
     file(GLOB SDK_LIB_LOG_SRC ${NRF5_SDK_PATH}/components/libraries/log/src/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_LOG_SRC})
+endmacro()
+
+#-- SDK: Library Experimental Section Vars -------------------------------------
+macro(nrf52_add_lib_expsvars)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/experimental_section_vars)
+
     file(GLOB SDK_LIB_EXPSVARS_SRC ${NRF5_SDK_PATH}/components/libraries/experimental_section_vars/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_EXPSVARS_SRC})
+endmacro()
+
+#-- SDK: Library Strerror ------------------------------------------------------
+macro(nrf52_add_lib_strerror)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/strerror)
+
     file(GLOB SDK_LIB_STRERROR_SRC ${NRF5_SDK_PATH}/components/libraries/strerror/*.c)
     list(APPEND SDK_SOURCE_FILES
-        ${SDK_LIB_EXPSVARS_SRC}
-        ${SDK_LIB_STRERROR_SRC}
-        ${SDK_LIB_LOG_SRC})
+        ${SDK_LIB_STRERROR_SRC})
+endmacro()
+
+#-- SDK: Library BSP -----------------------------------------------------------
+macro(nrf52_add_lib_bsp WITH_NFC WITH_BTN_BLE WITH_BTN_ANT)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/bsp)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/components/libraries/bsp/bsp.c)
+
+    if (${WITH_BTN_BLE})
+        list(APPEND SDK_SOURCE_FILES
+            ${NRF5_SDK_PATH}/components/libraries/bsp/bsp_btn_ble.c)
+    endif ()
+
+    if (${WITH_BTN_ANT})
+        list(APPEND SDK_SOURCE_FILES
+            ${NRF5_SDK_PATH}/components/libraries/bsp/bsp_btn_ant.c)
+    endif ()
+
+    if (${WITH_NFC})
+        list(APPEND SDK_SOURCE_FILES
+            ${NRF5_SDK_PATH}/components/libraries/bsp/bsp_nfc.c)
+    endif ()
+endmacro()
+
+#-- SDK: Library Timer ---------------------------------------------------------
+macro(nrf52_add_lib_timer WITH_TMR_FREERTOS WITH_TMR_RTX)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/timer)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/components/libraries/timer/app_timer.c)
+
+    if (${WITH_TMR_FREERTOS})
+        list(APPEND SDK_SOURCE_FILES
+            ${NRF5_SDK_PATH}/components/libraries/timer/app_timer_freertos.c)
+    endif ()
+
+    if (${WITH_TMR_RTX})
+        list(APPEND SDK_SOURCE_FILES
+            ${NRF5_SDK_PATH}/components/libraries/timer/app_timer_rtx.c)
+    endif ()
+endmacro()
+
+#-- SDK: Library Button --------------------------------------------------------
+macro(nrf52_add_lib_button)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/button)
+
+    file(GLOB SDK_LIB_BUTTON_SRC ${NRF5_SDK_PATH}/components/libraries/button/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_BUTTON_SRC})
+endmacro()
+
+#-- SDK: Library Scheduler -----------------------------------------------------
+macro(nrf52_add_lib_scheduler)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/scheduler)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/components/libraries/scheduler/app_scheduler.c)
+endmacro()
+
+#-- SDK: Library FIFO ----------------------------------------------------------
+macro(nrf52_add_lib_fifo)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/fifo)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/components/libraries/fifo/app_fifo.c)
+endmacro()
+
+#-- SDK: Library UART ----------------------------------------------------------
+macro(nRF5x_addAppUART)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/uart)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/components/libraries/uart/app_uart_fifo.c)
+endmacro()
+
+#-- SDK: Library Memobj --------------------------------------------------------
+macro(nrf52_add_lib_memobj)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/memobj)
+
+    file(GLOB SDK_LIB_MEMOBJ_SRC ${NRF5_SDK_PATH}/components/libraries/memobj/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_MEMOBJ_SRC})
+endmacro()
+
+#-- SDK: Library Balloc --------------------------------------------------------
+macro(nrf52_add_lib_balloc)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/balloc)
+
+    file(GLOB SDK_LIB_BALLOC_SRC ${NRF5_SDK_PATH}/components/libraries/balloc/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_BALLOC_SRC})
+endmacro()
+
+#-- SDK: Library Atomic --------------------------------------------------------
+macro(nrf52_add_lib_atomic)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/atomic)
+
+    file(GLOB SDK_LIB_ATOMIC_SRC ${NRF5_SDK_PATH}/components/libraries/atomic/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_ATOMIC_SRC})
+endmacro()
+
+#-- SDK: Library Ringbuf -------------------------------------------------------
+macro(nrf52_add_lib_ringbuf)
+    include_directories(
+        ${NRF5_SDK_PATH}/components/libraries/ringbuf)
+
+    file(GLOB SDK_LIB_RINGBUF_SRC ${NRF5_SDK_PATH}/components/libraries/ringbuf/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_LIB_RINGBUF_SRC})
+endmacro()
+
+#-- SDK: External Fprintf ------------------------------------------------------
+macro(nrf52_add_ext_fprintf)
+    include_directories(
+        ${NRF5_SDK_PATH}/external/fprintf)
+
+    file(GLOB SDK_EXT_FPRINTF_SRC ${NRF5_SDK_PATH}/external/fprintf/*.c)
+    list(APPEND SDK_SOURCE_FILES
+        ${SDK_EXT_FPRINTF_SRC})
+endmacro()
+
+#-- SDK: External SEGGER RTT ---------------------------------------------------
+macro(nrf52_add_ext_segger_rtt)
+    include_directories(
+        ${NRF5_SDK_PATH}/external/segger_rtt)
+
+    list(APPEND SDK_SOURCE_FILES
+        ${NRF5_SDK_PATH}/external/segger_rtt/SEGGER_RTT.c
+        ${NRF5_SDK_PATH}/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c
+        ${NRF5_SDK_PATH}/external/segger_rtt/SEGGER_RTT_printf.c)
 endmacro()
